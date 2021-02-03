@@ -24,6 +24,7 @@ function search(logOptions) {
 }
 
 function findItem(key, value) {
+    this.logOptions.pageNumber = 1;
     if (isNaN(value)) {
         this.logOptions.filterExpression = key + "='" + value + "'";
     } else {

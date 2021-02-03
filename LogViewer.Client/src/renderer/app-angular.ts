@@ -24,7 +24,7 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search
-        vm.logOptions.filterExpression = "@Level='Error'";
+        vm.logOptions.filterExpression = "@Level='Error' or @Level='Fatal'";
         vm.logOptions.pageNumber = 1;
         vm.performSearch();
     };
@@ -55,9 +55,25 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
         logViewerResource.getLogs(vm.logOptions).then((response) => {
             vm.logs = response.data;
             vm.loadinglogs = false;
-        });
-
-        // ipcRenderer.send("logviewer.get-logs", vm.logOptions);
+            vm.errorCount = vm.logs.errorItems;
+            vm.logTypes = { 
+                verbose: vm.logs.logLevel.verbose,
+                debug: vm.logs.logLevel.debug,
+                information: vm.logs.logLevel.information,
+                warning: vm.logs.logLevel.warning,
+                error: vm.logs.logLevel.error,
+                fatal: vm.logs.logLevel.fatal,  
+            };
+            vm.chartData = [
+                vm.logs.logLevel.verbose,
+                vm.logs.logLevel.debug,
+                vm.logs.logLevel.information,
+                vm.logs.logLevel.warning,
+                vm.logs.logLevel.error,
+                vm.logs.logLevel.fatal,
+            ];
+            vm.messageTemplates = vm.logs.logTemplates;
+        });        
     };
 
     // Used by the button in the UI

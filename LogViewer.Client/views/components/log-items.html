@@ -16,7 +16,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat-start="log in vm.logitems.items" ng-click="log.open = !log.open" class="item" ng-class="{'open': log.open}">
-                    <td>{{ log.timestamp | date:'medium' }}</td>
+                    <td>{{ log.timestamp | date:'dd.MM.yyyy. HH:mm:ss.sss' }}</td>
                     <td><span class="badge" ng-class="log.level | lowercase">{{ log.level }}</span></td>
                     <td>{{ log.renderedMessage }}</td>
                 </tr>
@@ -45,8 +45,24 @@
                                         <a ng-switch-when="HttpRequestNumber" ng-click="vm.findItem(key, val.value)" title="Find Logs with Request ID" class="btn btn-primary">{{val.value}}</a>
                                         <a ng-switch-when="SourceContext" ng-click="vm.findItem(key, val.value)" title="Find Logs with Namespace" class="btn btn-primary">{{val.value}}</a>
                                         <a ng-switch-when="MachineName" ng-click="vm.findItem(key, val.value)" title="Find Logs with Machine Name" class="btn btn-primary">{{val.value}}</a>
+                                        <a ng-switch-when="RequestPath" ng-click="vm.findItem(key, val.value)" title="Find Logs with RequestPath" class="btn btn-primary">{{val.value}}</a>
+                                        <a ng-switch-when="RequestId" ng-click="vm.findItem(key, val.value)" title="Find Logs with RequestId" class="btn btn-primary">{{val.value}}</a>
+                                        <a ng-switch-when="SpanId" ng-click="vm.findItem(key, val.value)" title="Find Logs with SpanId" class="btn btn-primary">{{val.value}}</a>
+                                        <a ng-switch-when="TraceId" ng-click="vm.findItem(key, val.value)" title="Find Logs with TraceId" class="btn btn-primary">{{val.value}}</a>
                                         <a ng-switch-when="RequestUrl" href="{{val.value}}" target="_blank" rel="noopener" title="Open">{{val.value}}</a>
-                                        <span ng-switch-default>{{val.value}}</span>
+                                        <div ng-switch-default>
+                                            <span ng-if="val.value">{{val.value}}</span>
+                                            <div ng-if="val.properties">
+                                                <table>
+                                                    <tbody>
+                                                        <tr ng-repeat="prop in val.properties">
+                                                            <td>{{prop.name}}</td>
+                                                            <td ng-if="prop.value.value">{{prop.value.value}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>

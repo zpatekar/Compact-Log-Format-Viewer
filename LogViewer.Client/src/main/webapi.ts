@@ -120,6 +120,9 @@ export function getLogs(focusedWindow: WebContents, pageNumber: number, filterEx
         }
 
         focusedWindow.send("logviewer.data-logs", body);
+        focusedWindow.send("logviewer.data-errors", body.errorItems);
+        focusedWindow.send("logviewer.data-totals", body.logLevel);
+        focusedWindow.send("logviewer.data-templates", body.logTemplates);
     });
 }
 
