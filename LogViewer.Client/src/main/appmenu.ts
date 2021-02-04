@@ -42,13 +42,14 @@ const template: Electron.MenuItemConstructorOptions[] = [
     },
     {
         id: "logviewer.export",
-        label: "Export as TXT File",
+        label: "Export to file",
         enabled: false,
         accelerator: "CmdOrCtrl+S",
         click: (menuItem, focusedWindow) => {
             file.saveDialog(focusedWindow.webContents);
         },
     },
+    { role: "close" }
   ],
 },
 {
@@ -82,15 +83,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
         { role: "minimize" },
         { role: "close" },
     ],
-},
-{
-    role: "help",
-    submenu: [{
-        label: "Github Repo",
-        click() {
-            shell.openExternal("https://github.com/warrenbuckley/Compact-Log-Format-Viewer");
-        },
-    }],
 }];
 
 if (process.platform === 'darwin') {

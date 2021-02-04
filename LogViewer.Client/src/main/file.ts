@@ -6,7 +6,7 @@ import * as webapi from "./webapi";
 export function openFileDialog(focusedWindow: Electron.WebContents):void {
 
     dialog.showOpenDialog({
-        filters: [{name: "Log File", extensions: ["txt", "json", "clef"]}],
+        filters: [{name: "Log File", extensions: ["txt", "json"]}],
         properties: ["openFile"],
         title: "Open Log",
     }).then(result => {
@@ -33,8 +33,8 @@ export function openFileDialog(focusedWindow: Electron.WebContents):void {
 export function saveDialog(focusedWindow: Electron.WebContents):void {
 
     dialog.showSaveDialog({
-        filters: [{name: "Text Log File", extensions: ["txt"]}],
-        title: "Export as Text File",
+        filters: [{name: "Json Log File", extensions: ["json"]}],
+        title: "Export as Json File",
     }).then(result => {
         console.log(result.canceled);
         console.log(result.filePath);

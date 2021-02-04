@@ -1,12 +1,11 @@
 {
   "name": "logviewer.client",
-  "productName": "Compact Log Viewer",
-  "version": "1.0.6",
-  "description": "A cross platform Electron app to view and search logs stored in the Compact log format",
-  "homepage": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer#readme",
+  "productName": "XCore Log Viewer",
+  "version": "1.0.0",
+  "description": "A cross platform Electron app to view and search logs stored in the serilog format",
   "repository": {
     "type": "git",
-    "url": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer.git"
+    "url": "https://github.com/zpatekar/Compact-Log-Format-Viewer"
   },
   "main": "dist/main/main.js",
   "scripts": {
@@ -14,12 +13,9 @@
     "lint": "eslint -c .eslintrc.js --ext .ts src",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "electron-builder --publish never --win --config ./electron-builder.json",
-    "mac": "electron-builder --publish never --mac --config electron-builder.json"
+    "win": "electron-builder --publish never --win --config ./electron-builder.json"
   },
-  "author": "Warren Buckley",
-  "license": "ISC",
-  "private": true,
+  "author": "Printec",
   "devDependencies": {
     "@types/angular": "^1.8.0",
     "@types/chart.js": "^2.9.30",

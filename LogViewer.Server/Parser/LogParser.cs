@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Filters.Expressions;
+using Serilog.Formatting.Compact;
 using Serilog.Formatting.Compact.Reader;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace LogViewer.Server
 		private List<LogEvent> _logItems;
 		public string LogFilePath { get; set; }
 		public bool LogIsOpen { get; set; }
+		public string FilterExpression { get; set; }
 
 		private const string ExpressionOperators = "()+=*<>%-";
 
@@ -85,17 +87,18 @@ namespace LogViewer.Server
 
 		public void ExportTextFile(string messageTemplate, string newFileName)
 		{
-			if (string.IsNullOrEmpty(messageTemplate))
-				messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [P{ProcessId}/D{AppDomainId}/T{ThreadId}] {Level:u3}  {SourceContext} - {Message:lj}{NewLine}{Exception}";
+			var filter = CreateFilter(FilterExpression);
 
-			var loggerConfig = new LoggerConfiguration()
-					.WriteTo.File(newFileName, outputTemplate: messageTemplate);
+			Log.Logger = new LoggerConfiguration()
+								.WriteTo.File(new CompactJsonFormatter(), newFileName)
+								.CreateLogger();
 
-			//We will need to re-read logs & pass in a Serilog that can persist to TXT file
-			using (var logger = loggerConfig.CreateLogger())
+			foreach (var log in _logItems.Where(filter))
 			{
-				ReadLogs(LogFilePath, logger);
+				Log.Write(log);
 			}
+
+			Log.CloseAndFlush();
 		}
 
 
@@ -137,10 +140,10 @@ namespace LogViewer.Server
 					LogTemplates = _logItems
 						.GroupBy(log => log.MessageTemplate.Text)
 						.Select(x => new LogTemplate
-							{
-								MessageTemplate = x.Key,
-								Count = x.Count()
-							})					
+						{
+							MessageTemplate = x.Key,
+							Count = x.Count()
+						})
 							.OrderByDescending(x => x.Count)
 							.Take(5)
 							.ToList()
@@ -148,26 +151,8 @@ namespace LogViewer.Server
 				return noFilter;
 			}
 
-			Func<LogEvent, bool> filter;
-
-			// If the expression is one word and doesn't contain a serilog operator then we can perform a like search
-			if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators.Select(c => c)))
-			{
-				filter = PerformMessageLikeFilter(filterExpression);
-			}
-			else // check if it's a valid expression
-			{
-				// If the expression evaluates then make it into a filter
-				if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
-				{
-					filter = evt => true.Equals(eval(evt));
-				}
-				else
-				{
-					//Assume the expression was a search string and make a Like filter from that
-					filter = PerformMessageLikeFilter(filterExpression);
-				}
-			}
+			var filter = CreateFilter(filterExpression);
+			FilterExpression = filterExpression;			
 
 			//Apply the filter to the collection
 			var filteredLogs = _logItems.Where(filter);
@@ -211,6 +196,30 @@ namespace LogViewer.Server
 					.ToList()
 			};
 			return rez;
+		}
+
+		private Func<LogEvent, bool> CreateFilter(string filterExpression)
+		{
+			Func<LogEvent, bool> filter;
+			// If the expression is one word and doesn't contain a serilog operator then we can perform a like search
+			if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators.Select(c => c)))
+			{
+				filter = PerformMessageLikeFilter(filterExpression);
+			}
+			else // check if it's a valid expression
+			{
+				// If the expression evaluates then make it into a filter
+				if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
+				{
+					filter = evt => true.Equals(eval(evt));
+				}
+				else
+				{
+					//Assume the expression was a search string and make a Like filter from that
+					filter = PerformMessageLikeFilter(filterExpression);
+				}
+			}
+			return filter;
 		}
 
 		public List<LogTemplate> GetMessageTemplates()
